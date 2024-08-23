@@ -252,7 +252,7 @@
                     }
                 });
                 const classes = await response.json();
-                console.log('Fetched classes:', classes); // Логирование полученных данных
+                console.log('Fetched classes:', classes);
 
                 const classesList = document.getElementById('classesList');
                 classesList.innerHTML = '';
@@ -284,12 +284,9 @@
             const classID = searchInput.value;
             const searchResult = document.getElementById('searchResult');
 
-            // Очистить старый результат поиска
             searchResult.innerHTML = '';
-
-            // Удалить старый класс ошибки и сбросить стиль обводки
             searchInput.classList.remove('error');
-            searchInput.style.transition = 'border-color 0.3s'; // Плавный переход
+            searchInput.style.transition = 'border-color 0.3s';
 
             if (classID) {
                 fetch('https://louse-precious-sincerely.ngrok-free.app/api/search', {
@@ -304,13 +301,13 @@
                         if (data.found) {
                             const classInfo = data.data;
                             searchResult.innerHTML = `
-                                <div class="search-item">
-                                    <h2>ClassId: ${classInfo.classID}</h2>
-                                    <p><strong>Никнейм:</strong> ${classInfo.nickname}</p>
-                                    <p><strong>Владелец:</strong> ${classInfo.owner}</p>
-                                    <button class="details-button" onclick="showDetails('${classInfo.classID}')">Подробнее</button>
-                                </div>
-                            `;
+                            <div class="search-item">
+                                <h2>ClassId: ${classInfo.classID}</h2>
+                                <p><strong>Никнейм:</strong> ${classInfo.nickname}</p>
+                                <p><strong>Владелец:</strong> ${classInfo.owner}</p>
+                                <button class="details-button" onclick="showDetails('${classInfo.classID}')">Подробнее</button>
+                            </div>
+                        `;
                         } else {
                             searchResult.innerHTML = '<p class="search-class-alerts">Класс не найден.</p>';
                         }
@@ -320,9 +317,8 @@
                         searchResult.innerHTML = '<p class="search-class-alerts">Ошибка при поиске класса. Попробуйте снова позже.</p>';
                     });
             } else {
-                // Применить класс ошибки и добавить анимацию
                 searchInput.classList.add('error');
-                searchInput.style.transition = 'border-color 0.3s ease-in-out'; // Плавный переход
+                searchInput.style.transition = 'border-color 0.3s ease-in-out';
             }
         }
 
@@ -340,17 +336,30 @@
                         const classInfo = data.data;
                         const modalBody = document.getElementById('modalBody');
                         modalBody.innerHTML = `
-                <p><strong>ClassId:</strong> ${classInfo.classID}</p>
-                <p><strong>Владелец:</strong> ${classInfo.owner}</p>
-                <p><strong>Класс:</strong> ${classInfo.class}</p>
-                <p><strong>Школа:</strong> ${classInfo.school}</p>
-                <p><strong>Город:</strong> ${classInfo.city}</p>
-                <p><strong>Никнейм:</strong> ${classInfo.nickname}</p>
-                <button class="delete-button" onclick="deleteClass('${classInfo.class}', '${classInfo.school}', '${classInfo.city}', '${classInfo.nickname}', '${classInfo.classID}', '${classInfo.owner}')">Удалить</button>
-            `;
+                        <p><strong>ClassId:</strong> ${classInfo.classID}</p>
+                        <p><strong>Владелец:</strong> ${classInfo.owner}</p>
+                        <p><strong>Класс:</strong> ${classInfo.class}</p>
+                        <p><strong>Школа:</strong> ${classInfo.school}</p>
+                        <p><strong>Город:</strong> ${classInfo.city}</p>
+                        <p><strong>Никнейм:</strong> ${classInfo.nickname}</p>
+                        
+                        <!-- Добавляем чекбокс -->
+                        <label>
+                            <input type="checkbox" id="confirmDeleteCheckbox">
+                            Удалить класс
+                        </label>
+                        <button class="delete-button" id="deleteButton" onclick="deleteClass('${classInfo.class}', '${classInfo.school}', '${classInfo.city}', '${classInfo.nickname}', '${classInfo.classID}', '${classInfo.owner}')" disabled>Удалить</button>
+                    `;
                         const modal = document.getElementById('detailsModal');
                         modal.style.display = 'flex';
                         modal.classList.add('show');
+
+                        // Активируем кнопку удаления только при нажатии на чекбокс
+                        const deleteCheckbox = document.getElementById('confirmDeleteCheckbox');
+                        const deleteButton = document.getElementById('deleteButton');
+                        deleteCheckbox.addEventListener('change', function() {
+                            deleteButton.disabled = !this.checked;
+                        });
                     } else {
                         alert('Класс не найден.');
                     }
@@ -381,23 +390,21 @@
                 owner: owner
             };
 
-            // Отправка данных в Web App
             tg.sendData(JSON.stringify(data));
             tg.close();
         }
 
         function handleEnter(event) {
             if (event.key === "Enter") {
-                event.preventDefault(); // Предотвратить выполнение действия по умолчанию
-                event.target.blur(); // Снять фокус с поля ввода
-                performSearch(); // Запустить поиск при нажатии Enter
+                event.preventDefault();
+                event.target.blur();
+                performSearch();
             }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             fetchClasses();
 
-            // Добавляем обработчик события keydown к полю ввода
             const searchInput = document.getElementById('searchInput');
             searchInput.addEventListener('keydown', handleEnter);
         });
