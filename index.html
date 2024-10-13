@@ -325,6 +325,18 @@
                 });
             }
         }
+
+        function toggleVerifyButton() {
+            const passwordInput = document.getElementById('passwordInput');
+            const verifyButton = document.getElementById('verifyPasswordButton');
+            
+            // Проверка на пустое значение или пробелы
+            if (passwordInput.value.trim() === '') {
+                verifyButton.disabled = true;
+            } else {
+                verifyButton.disabled = false;
+            }
+        }
         
         async function fetchClasses() {
             try {
@@ -433,6 +445,10 @@
                         const modal = document.getElementById('detailsModal');
                         modal.style.display = 'flex';
                         modal.classList.add('show');
+                        const verifyButton = document.getElementById('verifyPasswordButton');
+                        verifyButton.disabled = true;
+                        const passwordInput = document.getElementById('passwordInput');
+                        passwordInput.addEventListener('input', toggleVerifyButton);
                     } else {
                         alert('Класс не найден.');
                     }
