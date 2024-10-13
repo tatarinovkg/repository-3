@@ -206,6 +206,54 @@
             color: #bd2432;
         }
 
+        .password-input {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            width: 100%;
+            font-size: 14px;
+            box-sizing: border-box;
+            text-align: center;
+            transition: border-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .password-input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .password-input.error {
+            border-color: #ff0000;
+        }
+
+        .verify-password-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-top: 10px;
+            box-sizing: border-box;
+        }
+
+        .verify-password-button:hover {
+            background-color: #0056b3;
+        }
+
+        .verify-password-button.success {
+            background-color: #28a745;
+        }
+
+        .delete-button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+        
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -244,6 +292,40 @@
             tg.close();
         });
 
+
+        // Функция для проверки пароля
+        function verifyPassword(classID) {
+            const passwordInput = document.getElementById('passwordInput');
+            const deleteButton = document.getElementById('deleteButton');
+            const verifyButton = document.getElementById('verifyPasswordButton');
+            const enteredPassword = passwordInput.value;
+
+            if (enteredPassword) {
+                fetch('https://louse-precious-sincerely.ngrok-free.app/api/verify-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ classID, password: enteredPassword })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        verifyButton.classList.add('success');
+                        passwordInput.classList.remove('error');
+                        deleteButton.disabled = false;
+                    } else {
+                        verifyButton.classList.remove('success');
+                        passwordInput.classList.add('error');
+                        deleteButton.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error verifying password:', error);
+                });
+            }
+        }
+        
         async function fetchClasses() {
             try {
                 const response = await fetch('https://louse-precious-sincerely.ngrok-free.app/api/classes', {
@@ -337,30 +419,20 @@
                         const classInfo = data.data;
                         const modalBody = document.getElementById('modalBody');
                         modalBody.innerHTML = `
-                        <p><strong>ClassId:</strong> ${classInfo.classID}</p>
-                        <p><strong>Владелец:</strong> ${classInfo.owner}</p>
-                        <p><strong>Класс:</strong> ${classInfo.class}</p>
-                        <p><strong>Школа:</strong> ${classInfo.school}</p>
-                        <p><strong>Город:</strong> ${classInfo.city}</p>
-                        <p><strong>Никнейм:</strong> ${classInfo.nickname}</p>
-                        
-                        <!-- Добавляем чекбокс -->
-                        <label>
-                            <input type="checkbox" id="confirmDeleteCheckbox">
-                            Удалить класс
-                        </label>
-                        <button class="delete-button" id="deleteButton" onclick="deleteClass('${classInfo.class}', '${classInfo.school}', '${classInfo.city}', '${classInfo.nickname}', '${classInfo.classID}', '${classInfo.owner}')" disabled>Удалить</button>
-                    `;
+                            <p><strong>ClassId:</strong> ${classInfo.classID}</p>
+                            <p><strong>Владелец:</strong> ${classInfo.owner}</p>
+                            <p><strong>Класс:</strong> ${classInfo.class}</p>
+                            <p><strong>Школа:</strong> ${classInfo.school}</p>
+                            <p><strong>Город:</strong> ${classInfo.city}</p>
+                            <p><strong>Никнейм:</strong> ${classInfo.nickname}</p>
+                            
+                            <input type="password" id="passwordInput" class="password-input" placeholder="Введите пароль">
+                            <button id="verifyPasswordButton" class="verify-password-button" onclick="verifyPassword('${classInfo.classID}')">Проверить пароль</button>
+                            <button class="delete-button" id="deleteButton" onclick="deleteClass('${classInfo.class}', '${classInfo.school}', '${classInfo.city}', '${classInfo.nickname}', '${classInfo.classID}', '${classInfo.owner}')" disabled>Удалить</button>
+                        `;
                         const modal = document.getElementById('detailsModal');
                         modal.style.display = 'flex';
                         modal.classList.add('show');
-
-                        // Активируем кнопку удаления только при нажатии на чекбокс
-                        const deleteCheckbox = document.getElementById('confirmDeleteCheckbox');
-                        const deleteButton = document.getElementById('deleteButton');
-                        deleteCheckbox.addEventListener('change', function() {
-                            deleteButton.disabled = !this.checked;
-                        });
                     } else {
                         alert('Класс не найден.');
                     }
