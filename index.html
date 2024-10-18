@@ -179,7 +179,17 @@
             background: #bd2432;
         }
 
-        .delete-button {
+        /* Стили для неактивной кнопки удаления (серо-красная) */
+        #deleteButton:disabled {
+            background-color: #d6a1a1; /* Серо-красный цвет */
+            color: #ffffff; /* Белый текст */
+            opacity: 0.8; /* Немного прозрачная */
+            pointer-events: none; /* Отключаем все события для неактивных кнопок, включая hover */
+            transition: background-color 0.3s ease, opacity 0.3s ease; /* Плавная анимация */
+        }
+
+        /* Стили для активной кнопки удаления (красная) */
+        #deleteButton {
             background: #dc3545;
             color: white;
             border: none;
@@ -188,11 +198,38 @@
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s ease, opacity 0.3s ease; /* Плавная анимация */
         }
 
-        .delete-button:hover {
-            background-color: #bd2432;
+        /* Стили для ховера активной кнопки удаления */
+        #deleteButton:hover {
+            background-color: #bd2432; /* Темно-красный цвет при наведении */
+        }
+
+        /* Стили для неактивной кнопки проверки пароля (серо-синяя) */
+        #checkPasswordButton:disabled {
+            background-color: #a1b8d6; /* Серо-синий цвет */
+            color: #ffffff; /* Белый текст */
+            opacity: 0.8; /* Немного прозрачная */
+            pointer-events: none; /* Отключаем все события для неактивных кнопок, включая hover */
+            transition: background-color 0.3s ease, opacity 0.3s ease; /* Плавная анимация */
+        }
+
+        /* Стили для активной кнопки проверки пароля (синяя) */
+        #checkPasswordButton {
+            background-color: #007bff; /* Синий цвет для активной кнопки */
+            color: #ffffff; /* Белый текст */
+            border: none;
+            transition: background-color 0.3s ease, opacity 0.3s ease; /* Плавная анимация */
+        }
+
+        /* Стили для ховера активной кнопки проверки пароля */
+        #checkPasswordButton:hover {
+            background-color: #0056b3; /* Темно-синий цвет при наведении */
+        }
+
+        #passwordInput {
+            margin-top: 10px;
         }
 
         .instructions {
@@ -337,29 +374,60 @@
                         const classInfo = data.data;
                         const modalBody = document.getElementById('modalBody');
                         modalBody.innerHTML = `
-                        <p><strong>ClassId:</strong> ${classInfo.classID}</p>
-                        <p><strong>Владелец:</strong> ${classInfo.owner}</p>
-                        <p><strong>Класс:</strong> ${classInfo.class}</p>
-                        <p><strong>Школа:</strong> ${classInfo.school}</p>
-                        <p><strong>Город:</strong> ${classInfo.city}</p>
-                        <p><strong>Никнейм:</strong> ${classInfo.nickname}</p>
-                        
-                        <!-- Добавляем чекбокс -->
-                        <label>
-                            <input type="checkbox" id="confirmDeleteCheckbox">
-                            Удалить класс
-                        </label>
-                        <button class="delete-button" id="deleteButton" onclick="deleteClass('${classInfo.class}', '${classInfo.school}', '${classInfo.city}', '${classInfo.nickname}', '${classInfo.classID}', '${classInfo.owner}')" disabled>Удалить</button>
-                    `;
+                            <p><strong>ClassId:</strong> ${classInfo.classID}</p>
+                            <p><strong>Владелец:</strong> ${classInfo.owner}</p>
+                            <p><strong>Класс:</strong> ${classInfo.class}</p>
+                            <p><strong>Школа:</strong> ${classInfo.school}</p>
+                            <p><strong>Город:</strong> ${classInfo.city}</p>
+                            <p><strong>Никнейм:</strong> ${classInfo.nickname}</p>
+                            <button class="delete-button" id="deleteButton" onclick="deleteClass('${classInfo.class}', '${classInfo.school}', '${classInfo.city}', '${classInfo.nickname}', '${classInfo.classID}', '${classInfo.owner}')" disabled>Удалить</button>
+                            <label>
+                                <input type="password" id="passwordInput" class="search-input" placeholder="Введите пароль" style="margin-bottom: 10px;">
+                            </label>
+                            <button class="search-submit" id="checkPasswordButton" disabled>Проверить пароль</button>
+                        `;
                         const modal = document.getElementById('detailsModal');
                         modal.style.display = 'flex';
                         modal.classList.add('show');
 
-                        // Активируем кнопку удаления только при нажатии на чекбокс
-                        const deleteCheckbox = document.getElementById('confirmDeleteCheckbox');
+                        // Инициализация элементов после их создания
+                        const passwordInput = document.getElementById('passwordInput');
+                        const checkPasswordButton = document.getElementById('checkPasswordButton');
                         const deleteButton = document.getElementById('deleteButton');
-                        deleteCheckbox.addEventListener('change', function() {
-                            deleteButton.disabled = !this.checked;
+
+                        // Активируем кнопку проверки, когда введён текст
+                        passwordInput.addEventListener('input', function() {
+                            checkPasswordButton.disabled = passwordInput.value.trim() === '';
+                        });
+
+                        // Проверка пароля
+                        checkPasswordButton.addEventListener('click', async function() {
+                            const password = passwordInput.value.trim();
+                            const response = await fetch('https://louse-precious-sincerely.ngrok-free.app/api/check_password', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ password })
+                            });
+
+                            const result = await response.json();
+
+                            if (result.success) {
+                                passwordInput.style.borderColor = 'green';
+                                deleteButton.disabled = false;
+                            } else {
+                                passwordInput.style.borderColor = 'red';
+                                deleteButton.disabled = true;
+                            }
+                        });
+
+                        // Блокируем кнопку удаления, если поле пароля снова пустое
+                        passwordInput.addEventListener('input', function() {
+                            if (passwordInput.value.trim() === '') {
+                                deleteButton.disabled = true;
+                                passwordInput.style.borderColor = ''; // Сбросить обводку
+                            }
                         });
                     } else {
                         alert('Класс не найден.');
