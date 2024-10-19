@@ -180,7 +180,7 @@
         }
 
         /* Стили для неактивной кнопки удаления (серо-красная) */
-        #deleteButton:disabled {
+        [id^="deleteButton_"]:disabled {
             background-color: #d6a1a1; /* Серо-красный цвет */
             color: #ffffff; /* Белый текст */
             opacity: 0.8; /* Немного прозрачная */
@@ -189,7 +189,7 @@
         }
 
         /* Стили для активной кнопки удаления (красная) */
-        #deleteButton {
+        [id^="deleteButton_"] {
             background: #dc3545;
             color: white;
             border: none;
@@ -202,12 +202,12 @@
         }
 
         /* Стили для ховера активной кнопки удаления */
-        #deleteButton:hover {
+        [id^="deleteButton_"]:hover {
             background-color: #bd2432; /* Темно-красный цвет при наведении */
         }
 
         /* Стили для неактивной кнопки проверки пароля (серо-синяя) */
-        #checkPasswordButton:disabled {
+        [id^="checkPasswordButton_"]:disabled {
             background-color: #a1b8d6; /* Серо-синий цвет */
             color: #ffffff; /* Белый текст */
             opacity: 0.8; /* Немного прозрачная */
@@ -216,7 +216,7 @@
         }
 
         /* Стили для активной кнопки проверки пароля (синяя) */
-        #checkPasswordButton {
+        [id^="checkPasswordButton_"] {
             background-color: #007bff; /* Синий цвет для активной кнопки */
             color: #ffffff; /* Белый текст */
             border: none;
@@ -224,12 +224,8 @@
         }
 
         /* Стили для ховера активной кнопки проверки пароля */
-        #checkPasswordButton:hover {
+        [id^="checkPasswordButton_"]:hover {
             background-color: #0056b3; /* Темно-синий цвет при наведении */
-        }
-
-        #passwordInput {
-            margin-top: 10px;
         }
 
         .instructions {
@@ -380,20 +376,20 @@
                             <p><strong>Школа:</strong> ${classInfo.school}</p>
                             <p><strong>Город:</strong> ${classInfo.city}</p>
                             <p><strong>Никнейм:</strong> ${classInfo.nickname}</p>
-                            <button class="delete-button" id="deleteButton" onclick="deleteClass('${classInfo.class}', '${classInfo.school}', '${classInfo.city}', '${classInfo.nickname}', '${classInfo.classID}', '${classInfo.owner}')" disabled>Удалить</button>
+                            <button class="delete-button" id="deleteButton_${classInfo.classID}" onclick="deleteClass('${classInfo.class}', '${classInfo.school}', '${classInfo.city}', '${classInfo.nickname}', '${classInfo.classID}', '${classInfo.owner}')" disabled>Удалить</button>
                             <label>
-                                <input type="password" id="passwordInput" class="search-input" placeholder="Введите пароль" style="margin-bottom: 10px;">
+                                <input type="password" id="passwordInput_${classInfo.classID}" class="search-input" placeholder="Введите пароль" style="margin-bottom: 10px; margin-top: 10px">
                             </label>
-                            <button class="search-submit" id="checkPasswordButton" disabled>Проверить пароль</button>
+                            <button class="search-submit" id="checkPasswordButton_${classInfo.classID}" disabled>Проверить пароль</button>
                         `;
                         const modal = document.getElementById('detailsModal');
                         modal.style.display = 'flex';
                         modal.classList.add('show');
 
                         // Инициализация элементов после их создания
-                        const passwordInput = document.getElementById('passwordInput');
-                        const checkPasswordButton = document.getElementById('checkPasswordButton');
-                        const deleteButton = document.getElementById('deleteButton');
+                        const passwordInput = document.getElementById(`passwordInput_${classInfo.classID}`);
+                        const checkPasswordButton = document.getElementById(`checkPasswordButton_${classInfo.classID}`);
+                        const deleteButton = document.getElementById(`deleteButton_${classInfo.classID}`);
 
                         // Активируем кнопку проверки, когда введён текст
                         passwordInput.addEventListener('input', function() {
